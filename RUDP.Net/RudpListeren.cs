@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MatthiWare.Net.RUDP
+namespace MatthiWare.Net.Sockets
 {
-    class Class1
+    class RUdpListeren
     {
     }
 }
