@@ -12,7 +12,7 @@ using MatthiWare.Net.Sockets.Utils;
 
 namespace MatthiWare.Net.Sockets.Base
 {
-    public class UdpSocket
+    public class UdpSocket : IDisposable
     {
         private const int MAX_BUFFER_SIZE = 8 * 1024;
 
@@ -30,6 +30,12 @@ namespace MatthiWare.Net.Sockets.Base
             set { m_client.Ttl = value; }
         }
 
+        public bool ExclusiveAddressUse
+        {
+            get { return m_client.ExclusiveAddressUse; }
+            set { m_client.ExclusiveAddressUse = value; }
+        }
+
         public bool DontFragment
         {
             get { return m_client.DontFragment; }
@@ -43,41 +49,41 @@ namespace MatthiWare.Net.Sockets.Base
 
         public UdpSocket(AddressFamily family)
         {
-            m_family = family;
-        }
-
-        public UdpSocket(int port) : this(port, AddressFamily.InterNetwork)
-        { }
-
-        public UdpSocket(int port, AddressFamily family)
-        {
-            if (!Helper.IsValidTcpPort(port)) throw new ArgumentOutOfRangeException(nameof(port));
             if (family != AddressFamily.InterNetwork && family != AddressFamily.InterNetworkV6) throw new ArgumentException("Invalid protocol family", nameof(family));
 
             m_family = family;
-            var ep = new IPEndPoint(m_family == AddressFamily.InterNetwork ? IPAddress.Any : IPAddress.IPv6Any, port);
 
             m_client = CreateClient();
-
-            m_client.Bind(ep);
-        }
-
-        public UdpSocket(IPEndPoint localEP)
-        {
-            if (localEP == null)
-                throw new ArgumentNullException(nameof(localEP));
-
-            m_family = localEP.AddressFamily;
-
-            m_client = CreateClient();
-
-            m_client.Bind(localEP);
         }
 
         public void Connect(string hostname, int port)
         {
             if (string.IsNullOrEmpty(hostname)) throw new ArgumentNullException(nameof(hostname));
             if (!Helper.IsValidTcpPort(port)) throw new ArgumentOutOfRangeException(nameof(port));
+
+            var addresses = Dns.GetHostAddresses(hostname);
+            Exception ex = null;
+
+            foreach (var addr in addresses)
+            {
+                if (addr.AddressFamily != m_family)
+                    continue;
+
+                try
+                {
+                    Connect(new IPEndPoint(addr, port));
+                    break;
+                }
+                catch (Exception e)
+                {
+                    ex = e;
+                }
+            }
+
+            if (Active)
+                return;
+
+            throw (ex != null) ? ex : new SocketException((int)SocketError.NotConnected);
         }
 
         public void Connect(IPAddress ip, int port)
@@ -99,6 +105,23 @@ namespace MatthiWare.Net.Sockets.Base
             Active = true;
         }
 
+        public void Bind(int port)
+        {
+            if (!Helper.IsValidTcpPort(port)) throw new ArgumentOutOfRangeException(nameof(port));
+
+            Bind(Helper.GetEp(m_family, port));
+        }
+
+        public void Bind(EndPoint localEP)
+        {
+            if (localEP == null) throw new ArgumentNullException(nameof(localEP));
+
+            m_client.Bind(localEP);
+        }
+
+        public void Listen() => m_client.Listen((int)SocketOptionName.MaxConnections);
+
+
         public int Send(byte[] buffer, int offset, int size)
         {
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
@@ -109,7 +132,7 @@ namespace MatthiWare.Net.Sockets.Base
 
         public byte[] Receive(ref IPEndPoint remoteEP)
         {
-            EndPoint ep = new IPEndPoint(m_family == AddressFamily.InterNetwork ? IPAddress.Any : IPAddress.IPv6Any, 0);
+            var ep = Helper.GetEp(m_family);
 
             int rcvd = m_client.ReceiveFrom(m_buffer, SocketFlags.None, ref ep);
 
@@ -124,17 +147,22 @@ namespace MatthiWare.Net.Sockets.Base
             return m_buffer;
         }
 
+        public void Disconnect(bool reuse)
+        {
+            m_client.Disconnect(reuse);
+        }
+
         [HostProtection(ExternalThreading = true)]
         public IAsyncResult BeginReceive(AsyncCallback callBack, object state)
         {
-            EndPoint ep = new IPEndPoint(m_family == AddressFamily.InterNetwork ? IPAddress.Any : IPAddress.IPv6Any, 0);
+            var ep = Helper.GetEp(m_family);
 
             return m_client.BeginReceiveFrom(m_buffer, 0, MAX_BUFFER_SIZE, SocketFlags.None, ref ep, callBack, state);
         }
 
         public byte[] EndReceive(IAsyncResult result, ref IPEndPoint remoteEP)
         {
-            EndPoint ep = new IPEndPoint(m_family == AddressFamily.InterNetwork ? IPAddress.Any : IPAddress.IPv6Any, 0);
+            var ep = Helper.GetEp(m_family);
 
             int rcvd = m_client.EndReceiveFrom(result, ref ep);
             remoteEP = (IPEndPoint)ep;
@@ -185,5 +213,47 @@ namespace MatthiWare.Net.Sockets.Base
         {
             return new Socket(m_family, SocketType.Dgram, ProtocolType.Udp);
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects).
+                    m_client.Shutdown(SocketShutdown.Both);
+                    m_client.Close();
+
+                    m_client = null;
+
+                    m_buffer = null;
+                    Active = false;
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~UdpSocket() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

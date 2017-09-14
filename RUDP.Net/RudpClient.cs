@@ -7,6 +7,7 @@ using MatthiWare.Net.Sockets.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,9 +25,12 @@ namespace MatthiWare.Net.Sockets
             m_socket = new UdpSocket();
         }
 
-        public void Connect(string hostname, int port)
-        {
-            
-        }
+        public void Connect(string hostname, int port) => m_socket.Connect(hostname, port);
+
+        public void Connect(IPEndPoint ep) => m_socket.Connect(ep);
+
+        public void Connect(IPAddress ip, int port) => m_socket.Connect(ip, port);
+
+
     }
 }

@@ -40,10 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Packets\IPacket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Base\UdpSocket.cs" />
     <Compile Include="RUdpClient.cs" />
-    <Compile Include="RUdpListeren.cs" />
+    <Compile Include="RUdpListener.cs" />
     <Compile Include="Utils\Helper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
