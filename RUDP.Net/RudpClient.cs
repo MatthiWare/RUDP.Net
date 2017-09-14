@@ -1,4 +1,9 @@
-﻿using MatthiWare.Net.Sockets.Base;
+﻿/*  Copyright (C) 2017 MatthiWare
+ *  Copyright (C) 2017 Matthias Beerens
+ *  For the full notice see <https://github.com/MatthiWare/RUDP.Net/blob/master/LICENSE>. 
+ */
+
+using MatthiWare.Net.Sockets.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;

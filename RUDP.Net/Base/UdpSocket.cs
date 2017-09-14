@@ -1,4 +1,9 @@
-﻿using System;
+﻿/*  Copyright (C) 2017 MatthiWare
+ *  Copyright (C) 2017 Matthias Beerens
+ *  For the full notice see <https://github.com/MatthiWare/RUDP.Net/blob/master/LICENSE>. 
+ */
+
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
