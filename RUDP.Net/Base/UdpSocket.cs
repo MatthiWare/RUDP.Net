@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Security.Permissions;
 using MatthiWare.Net.Sockets.Utils;
+using MatthiWare.Net.Sockets.Packets;
 
 namespace MatthiWare.Net.Sockets.Base
 {
@@ -197,6 +198,13 @@ namespace MatthiWare.Net.Sockets.Base
             return Task<int>.Factory.FromAsync(BeginSend, EndSend, buffer, offset, size, null);
         }
 
+        public Task<int> SendPacket(IPacket packet)
+        {
+            var raw = packet.SendPacket();
+
+            return SendAsync(raw.ToBuffer(), 0, raw.Lenght);
+        }
+
         [HostProtection(ExternalThreading = true)]
         public Task<UdpReceiveResult> ReceiveAsync()
         {
@@ -205,6 +213,21 @@ namespace MatthiWare.Net.Sockets.Base
                 IPEndPoint remoteEP = null;
                 byte[] buffer = EndReceive(ar, ref remoteEP);
                 return new UdpReceiveResult(buffer, remoteEP);
+
+            }, null);
+        }
+
+        [HostProtection(ExternalThreading = true)]
+        public Task<Tuple<IPacket, IPEndPoint>> ReceivePacketAsync()
+        {
+            return Task.Factory.FromAsync((cb, state) => BeginReceive(cb, state), (ar) =>
+            {
+                IPEndPoint remoteEP = null;
+                byte[] buffer = EndReceive(ar, ref remoteEP);
+
+                RawPacket raw = new RawPacket(buffer);
+
+                return new Tuple<IPacket, IPEndPoint>(PacketReader.GetPacket(raw), remoteEP);
 
             }, null);
         }

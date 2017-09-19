@@ -4,6 +4,7 @@
  */
 
 using MatthiWare.Net.Sockets.Base;
+using MatthiWare.Net.Sockets.Packets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,9 @@ namespace MatthiWare.Net.Sockets
 
         public void Connect(IPAddress ip, int port) => m_socket.Connect(ip, port);
 
-
+        public void SendPacket(IPacket packet)
+        {
+            m_socket.SendPacket(packet);
+        }
     }
 }

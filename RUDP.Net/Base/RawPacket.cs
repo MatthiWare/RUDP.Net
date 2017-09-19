@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿/*  Copyright (C) 2017 MatthiWare
+ *  Copyright (C) 2017 Matthias Beerens
+ *  For the full notice see <https://github.com/MatthiWare/RUDP.Net/blob/master/LICENSE>. 
+ */
+using System;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MatthiWare.Net.Sockets.Base
 {
-    public struct RawData
+    public struct RawPacket
     {
         private byte[] buffer;
         private int position;
@@ -15,14 +16,14 @@ namespace MatthiWare.Net.Sockets.Base
 
         public int Lenght { get { return buffer.Length; } }
 
-        public RawData(int initialSize = 1024)
+        public RawPacket(int initialSize = 1024)
         {
             capacity = initialSize;
             buffer = new byte[capacity];
             position = 0;
         }
 
-        public RawData(byte[] buffer)
+        public RawPacket(byte[] buffer)
         {
             capacity = buffer.Length;
             this.buffer = buffer;
@@ -285,6 +286,11 @@ namespace MatthiWare.Net.Sockets.Base
             WriteUInt8Array(Encoding.UTF8.GetBytes(value));
         }
 
-        public byte[] GetBuffer() => buffer;
+        public byte[] ToBuffer()
+        {
+            byte[] buf = new byte[capacity];
+            Buffer.BlockCopy(buffer, 0, buf, 0, Lenght);
+            return buf;
+        }
     }
 }
