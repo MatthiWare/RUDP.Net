@@ -16,5 +16,18 @@ namespace Client
         {
             InitializeComponent();
         }
+
+        private void ClientForm_Load(object sender, EventArgs e)
+        {
+            var login = new LoginForm();
+            while (login.ShowDialog(this) != DialogResult.OK) ;
+
+            InitializeClient(login.Username, login.ServerIP);
+        }
+
+        private void InitializeClient(string username, string serverIP)
+        {
+            
+        }
     }
 }

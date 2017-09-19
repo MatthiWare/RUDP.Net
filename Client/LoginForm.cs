@@ -12,6 +12,9 @@ namespace Client
 {
     public partial class LoginForm : Form
     {
+        public string Username => txtUsername.Text;
+        public string ServerIP => txtServer.Text;
+
         public LoginForm()
         {
             InitializeComponent();

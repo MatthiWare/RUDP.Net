@@ -200,7 +200,9 @@ namespace MatthiWare.Net.Sockets.Base
 
         public Task<int> SendPacket(IPacket packet)
         {
-            var raw = packet.SendPacket();
+            var raw = new RawPacket();
+
+            packet.WritePacket(raw);
 
             return SendAsync(raw.ToBuffer(), 0, raw.Lenght);
         }

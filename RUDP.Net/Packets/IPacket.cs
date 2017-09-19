@@ -10,6 +10,6 @@ namespace MatthiWare.Net.Sockets.Packets
     {
         byte Id { get; }
         void ReadPacket(RawPacket data);
-        RawPacket SendPacket();
+        void WritePacket(RawPacket data);
     }
 }
