@@ -9,7 +9,7 @@ namespace MatthiWare.Net.Sockets.Packets
     public interface IPacket
     {
         byte Id { get; }
-        void ReadPacket(RawPacket data);
-        void WritePacket(RawPacket data);
+        void ReadPacket(ref RawPacket data);
+        void WritePacket(ref RawPacket data);
     }
 }

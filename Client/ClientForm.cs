@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MatthiWare.Net.Sockets;
+using Packets;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,6 +14,8 @@ namespace Client
 {
     public partial class ClientForm : Form
     {
+        private RUdpClient client;
+
         public ClientForm()
         {
             InitializeComponent();
@@ -19,15 +23,19 @@ namespace Client
 
         private void ClientForm_Load(object sender, EventArgs e)
         {
-            var login = new LoginForm();
-            while (login.ShowDialog(this) != DialogResult.OK) ;
+            using (var login = new LoginForm())
+            {
+                while (login.ShowDialog(this) != DialogResult.OK) ;
 
-            InitializeClient(login.Username, login.ServerIP);
+                InitializeClient(login.Username, login.ServerIP);
+            }
         }
 
         private void InitializeClient(string username, string serverIP)
         {
-            
+            client = new RUdpClient();
+            client.Connect(serverIP, 43594);
+            client.SendPacket(new LoginPacket { Username = username });
         }
     }
 }

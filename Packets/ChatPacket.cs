@@ -17,13 +17,13 @@ namespace Packets
         public string Username { get; set; }
         public string Message { get; set; }
 
-        public void ReadPacket(RawPacket data)
+        public void ReadPacket(ref RawPacket data)
         {
             Username = data.ReadString();
             Message = data.ReadString();
         }
 
-        public void WritePacket(RawPacket data)
+        public void WritePacket(ref RawPacket data)
         {
             data.WriteByte(UniqueID);
             data.WriteString(Username);

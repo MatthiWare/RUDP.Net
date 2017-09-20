@@ -3,45 +3,41 @@
  *  For the full notice see <https://github.com/MatthiWare/RUDP.Net/blob/master/LICENSE>. 
  */
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
 namespace MatthiWare.Net.Sockets.Base
 {
+    [DebuggerDisplay("Capacity: {Capacity}, Position: {position}")]
     public struct RawPacket
     {
         private byte[] buffer;
         private int position;
-        private int capacity;
+        private int Capacity => buffer.Length;
 
-        public int Lenght { get { return buffer.Length; } }
-
-        public RawPacket(int initialSize = 1024)
+        public RawPacket(int initialSize)
         {
-            capacity = initialSize;
-            buffer = new byte[capacity];
+            buffer = new byte[initialSize];
             position = 0;
         }
 
         public RawPacket(byte[] buffer)
         {
-            capacity = buffer.Length;
             this.buffer = buffer;
             position = 0;
         }
 
         private void EnsureCapacity(int cap)
         {
-            if (cap < capacity) return;
+            if (cap < Capacity) return;
 
             int newCap = cap;
 
             if (newCap < 256) newCap = 256;
-            if (newCap < capacity * 2) newCap = capacity * 2;
+            if (newCap < Capacity * 2) newCap = Capacity * 2;
 
-            capacity = newCap;
-
-            byte[] newBuffer = new byte[capacity];
+            byte[] newBuffer = new byte[newCap];
             Buffer.BlockCopy(buffer, 0, newBuffer, 0, position);
 
             buffer = newBuffer;
@@ -69,11 +65,11 @@ namespace MatthiWare.Net.Sockets.Base
             position = i;
         }
 
-        public void Read(byte[] data, int offset, int count) => Buffer.BlockCopy(buffer, position, data, offset, count);
+        public void Read(byte[] data, int offset, int count) => Buffer.BlockCopy(buffer , position, data, offset, count);
 
         public int ReadByte()
         {
-            if (position >= capacity)
+            if (position >= Capacity)
                 return -1;
 
             return buffer[position++];
@@ -276,7 +272,7 @@ namespace MatthiWare.Net.Sockets.Base
         public string ReadString()
         {
             ushort length = ReadUInt16();
-            var data = ReadUInt8Array(length * 2);
+            var data = ReadUInt8Array(length);
             return Encoding.UTF8.GetString(data);
         }
 
@@ -288,8 +284,8 @@ namespace MatthiWare.Net.Sockets.Base
 
         public byte[] ToBuffer()
         {
-            byte[] buf = new byte[capacity];
-            Buffer.BlockCopy(buffer, 0, buf, 0, Lenght);
+            byte[] buf = new byte[position];
+            Buffer.BlockCopy(buffer, 0, buf, 0, position);
             return buf;
         }
     }

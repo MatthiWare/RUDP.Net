@@ -70,6 +70,7 @@
             this.txtUsername.Name = "txtUsername";
             this.txtUsername.Size = new System.Drawing.Size(326, 20);
             this.txtUsername.TabIndex = 3;
+            this.txtUsername.Text = "Matthias";
             // 
             // txtServer
             // 
@@ -77,6 +78,7 @@
             this.txtServer.Name = "txtServer";
             this.txtServer.Size = new System.Drawing.Size(326, 20);
             this.txtServer.TabIndex = 4;
+            this.txtServer.Text = "127.0.0.1";
             // 
             // LoginForm
             // 

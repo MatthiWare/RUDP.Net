@@ -200,11 +200,13 @@ namespace MatthiWare.Net.Sockets.Base
 
         public Task<int> SendPacket(IPacket packet)
         {
-            var raw = new RawPacket();
+            var raw = new RawPacket(256);
 
-            packet.WritePacket(raw);
+            packet.WritePacket(ref raw);
 
-            return SendAsync(raw.ToBuffer(), 0, raw.Lenght);
+            var sendBuffer = raw.ToBuffer();
+
+            return SendAsync(sendBuffer, 0, sendBuffer.Length);
         }
 
         [HostProtection(ExternalThreading = true)]

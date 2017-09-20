@@ -4,6 +4,7 @@
  */
 
 using MatthiWare.Net.Sockets.Base;
+using MatthiWare.Net.Sockets.Packets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,15 +34,15 @@ namespace MatthiWare.Net.Sockets
 
             m_server.Bind(m_serverEP);
 
-            try
-            {
-                m_server.Listen();
-            }
-            catch (SocketException)
-            {
-                Stop();
-                throw;
-            }
+            //try
+            //{
+            //    m_server.Listen();
+            //}
+            //catch (SocketException)
+            //{
+            //    Stop();
+            //    throw;
+            //}
 
             Active = true;
         }
@@ -53,6 +54,11 @@ namespace MatthiWare.Net.Sockets
             Active = false;
 
             m_server = new UdpSocket();
+        }
+
+        public Task<Tuple<IPacket, IPEndPoint>> ReceivePacketAsync()
+        {
+            return m_server.ReceivePacketAsync();
         }
 
     }

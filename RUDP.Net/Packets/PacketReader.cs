@@ -12,13 +12,12 @@ namespace MatthiWare.Net.Sockets.Packets
     {
         private static ConcurrentDictionary<byte, Type> PacketTypes = new ConcurrentDictionary<byte, Type>();
 
-        public static void RegisterPacket(Type packetType)
+        public static void RegisterPacket(byte id, Type packetType)
         {
-            IPacket packet = PacketFromType(packetType);
-            PacketTypes.AddOrUpdate(packet.Id, packetType, (b, t) => packetType);
+            PacketTypes.AddOrUpdate(id, packetType, (b, t) => packetType);
         }
 
-        private static IPacket PacketFromType(Type packetType)
+        public static IPacket PacketFromType(Type packetType)
         {
             if (!typeof(IPacket).IsAssignableFrom(packetType))
                 throw new InvalidCastException("Type must inherit from IPacket");
@@ -35,7 +34,7 @@ namespace MatthiWare.Net.Sockets.Packets
                 throw new InvalidOperationException($"Invalid packet id: 0x{id.ToString("X2")}");
 
             IPacket packet = PacketFromType(type);
-            packet.ReadPacket(data);
+            packet.ReadPacket(ref data);
 
             return packet;
         }

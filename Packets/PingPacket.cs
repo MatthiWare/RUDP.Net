@@ -16,12 +16,12 @@ namespace Packets
 
         public long SendTime { get; set; }
 
-        public void ReadPacket(RawPacket data)
+        public void ReadPacket(ref RawPacket data)
         {
             SendTime = data.ReadInt64();
         }
 
-        public void WritePacket(RawPacket data)
+        public void WritePacket(ref RawPacket data)
         {
             data.WriteByte(UniqueID);
             data.WriteInt64(SendTime);

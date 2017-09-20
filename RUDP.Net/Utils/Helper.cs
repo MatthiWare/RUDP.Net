@@ -15,7 +15,7 @@ namespace MatthiWare.Net.Sockets.Utils
 {
     internal static class Helper
     {
-        public static bool IsValidTcpPort(int port) => port >= IPEndPoint.MinPort && port <= IPEndPoint.MinPort;
+        public static bool IsValidTcpPort(int port) => port >= IPEndPoint.MinPort && port <= IPEndPoint.MaxPort;
 
         public static EndPoint GetEp(AddressFamily family) => GetEp(family, 0);
 
