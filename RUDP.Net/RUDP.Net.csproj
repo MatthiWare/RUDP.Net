@@ -42,12 +42,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base\RawPacket.cs" />
+    <Compile Include="IClientInfo.cs" />
+    <Compile Include="Internal\ClientInfo.cs" />
+    <Compile Include="Packets\Packet.cs" />
     <Compile Include="Packets\IPacket.cs" />
     <Compile Include="Packets\PacketReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Base\UdpSocket.cs" />
+    <Compile Include="Base\UdpClient.cs" />
+    <Compile Include="Base\UdpListener.cs" />
     <Compile Include="RUdpClient.cs" />
-    <Compile Include="RUdpListener.cs" />
+    <Compile Include="RUdpServer.cs" />
+    <Compile Include="Threading\ConcurrentList.cs" />
+    <Compile Include="Threading\ConcurrentQueue.cs" />
     <Compile Include="Utils\Helper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

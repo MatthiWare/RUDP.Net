@@ -65,7 +65,7 @@ namespace MatthiWare.Net.Sockets.Base
             position = i;
         }
 
-        public void Read(byte[] data, int offset, int count) => Buffer.BlockCopy(buffer , position, data, offset, count);
+        public void Read(byte[] data, int offset, int count) => Buffer.BlockCopy(buffer, position, data, offset, count);
 
         public int ReadByte()
         {
@@ -75,7 +75,7 @@ namespace MatthiWare.Net.Sockets.Base
             return buffer[position++];
         }
 
-        public void WriteByte(byte value)
+        public void Write(byte value)
         {
             EnsureCapacity(position + 1);
 
@@ -89,11 +89,11 @@ namespace MatthiWare.Net.Sockets.Base
             return (byte)val;
         }
 
-        public void WriteUInt8(byte value) => WriteByte(value);
+        public void WriteUInt8(byte value) => Write(value);
 
         public sbyte ReadInt8() => (sbyte)ReadUInt8();
 
-        public void WriteInt8(sbyte value) => WriteUInt8((byte)value);
+        public void Write(sbyte value) => WriteUInt8((byte)value);
 
         public ushort ReadUInt16()
         {
@@ -103,7 +103,7 @@ namespace MatthiWare.Net.Sockets.Base
 
         }
 
-        public void WriteUInt16(ushort value)
+        public void Write(ushort value)
         {
             Write(new[]
             {
@@ -114,7 +114,7 @@ namespace MatthiWare.Net.Sockets.Base
 
         public short ReadInt16() => (short)ReadUInt16();
 
-        public void WriteInt16(short value) => WriteUInt16((ushort)value);
+        public void Write(short value) => Write((ushort)value);
 
         public uint ReadUInt32()
         {
@@ -125,7 +125,7 @@ namespace MatthiWare.Net.Sockets.Base
                 ReadUInt8());
         }
 
-        public void WriteUInt32(uint value)
+        public void Write(uint value)
         {
             Write(new[]
             {
@@ -138,7 +138,7 @@ namespace MatthiWare.Net.Sockets.Base
 
         public int ReadInt32() => (int)ReadUInt32();
 
-        public void WriteInt32(int value) => WriteUInt32((uint)value);
+        public void Write(int value) => Write((uint)value);
 
         public ulong ReadUInt64()
         {
@@ -153,7 +153,7 @@ namespace MatthiWare.Net.Sockets.Base
                 ReadUInt8());
         }
 
-        public void WriteUInt64(ulong value)
+        public void Write(ulong value)
         {
             Write(new[]
             {
@@ -170,7 +170,7 @@ namespace MatthiWare.Net.Sockets.Base
 
         public long ReadInt64() => (long)ReadUInt64();
 
-        public void WriteInt64(long value) => WriteUInt64((ulong)value);
+        public void Write(long value) => Write((ulong)value);
 
         public byte[] ReadUInt8Array(int length)
         {
@@ -180,11 +180,11 @@ namespace MatthiWare.Net.Sockets.Base
             return result;
         }
 
-        public void WriteUInt8Array(byte[] value) => Write(value, 0, value.Length);
+        public void Write(byte[] value) => Write(value, 0, value.Length);
 
         public sbyte[] ReadInt8Array(int length) => (sbyte[])(Array)ReadUInt8Array(length);
 
-        public void WriteInt8Array(sbyte[] value) => Write((byte[])(Array)value, 0, value.Length);
+        public void Write(sbyte[] value) => Write((byte[])(Array)value, 0, value.Length);
 
         public ushort[] ReadUInt16Array(int length)
         {
@@ -195,15 +195,15 @@ namespace MatthiWare.Net.Sockets.Base
             return result;
         }
 
-        public void WriteUInt16Array(ushort[] value)
+        public void Write(ushort[] value)
         {
             for (int i = 0; i < value.Length; i++)
-                WriteUInt16(value[i]);
+                Write(value[i]);
         }
 
         public short[] ReadInt16Array(int length) => (short[])(Array)ReadUInt16Array(length);
 
-        public void WriteInt16Array(short[] value) => WriteUInt16Array((ushort[])(Array)value);
+        public void Write(short[] value) => Write((ushort[])(Array)value);
 
         public uint[] ReadUInt32Array(int length)
         {
@@ -214,15 +214,15 @@ namespace MatthiWare.Net.Sockets.Base
             return result;
         }
 
-        public void WriteUInt32Array(uint[] value)
+        public void Write(uint[] value)
         {
             for (int i = 0; i < value.Length; i++)
-                WriteUInt32(value[i]);
+                Write(value[i]);
         }
 
         public int[] ReadInt32Array(int length) => (int[])(Array)ReadUInt32Array(length);
 
-        public void WriteInt32Array(int[] value) => WriteUInt32Array((uint[])(Array)value);
+        public void Write(int[] value) => Write((uint[])(Array)value);
 
         public ulong[] ReadUInt64Array(int length)
         {
@@ -233,15 +233,15 @@ namespace MatthiWare.Net.Sockets.Base
             return result;
         }
 
-        public void WriteUInt64Array(ulong[] value)
+        public void Write(ulong[] value)
         {
             for (int i = 0; i < value.Length; i++)
-                WriteUInt64(value[i]);
+                Write(value[i]);
         }
 
         public long[] ReadInt64Array(int length) => (long[])(Array)ReadUInt64Array(length);
 
-        public void WriteInt64Array(long[] value) => WriteUInt64Array((ulong[])(Array)value);
+        public void Write(long[] value) => Write((ulong[])(Array)value);
 
         public unsafe float ReadSingle()
         {
@@ -249,9 +249,9 @@ namespace MatthiWare.Net.Sockets.Base
             return *(float*)&value;
         }
 
-        public unsafe void WriteSingle(float value)
+        public unsafe void Write(float value)
         {
-            WriteUInt32(*(uint*)&value);
+            Write(*(uint*)&value);
         }
 
         public unsafe double ReadDouble()
@@ -260,14 +260,14 @@ namespace MatthiWare.Net.Sockets.Base
             return *(double*)&value;
         }
 
-        public unsafe void WriteDouble(double value)
+        public unsafe void Write(double value)
         {
-            WriteUInt64(*(ulong*)&value);
+            Write(*(ulong*)&value);
         }
 
         public bool ReadBool() => ReadUInt8() != 0;
 
-        public void WriteBool(bool value) => WriteUInt8(value ? (byte)1 : (byte)0);
+        public void Write(bool value) => WriteUInt8(value ? (byte)1 : (byte)0);
 
         public string ReadString()
         {
@@ -276,11 +276,15 @@ namespace MatthiWare.Net.Sockets.Base
             return Encoding.UTF8.GetString(data);
         }
 
-        public void WriteString(string value)
+        public void Write(string value)
         {
-            WriteUInt16((ushort)value.Length);
-            WriteUInt8Array(Encoding.UTF8.GetBytes(value));
+            Write((ushort)value.Length);
+            Write(Encoding.UTF8.GetBytes(value));
         }
+
+        public Guid ReadGuid() => new Guid(ReadUInt8Array(16));
+
+        public void Write(Guid value) => Write(value.ToByteArray());
 
         public byte[] ToBuffer()
         {

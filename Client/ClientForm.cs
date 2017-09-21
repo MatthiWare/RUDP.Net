@@ -1,4 +1,4 @@
-﻿using MatthiWare.Net.Sockets;
+﻿using MatthiWare.Net.Sockets.Base;
 using Packets;
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ namespace Client
 {
     public partial class ClientForm : Form
     {
-        private RUdpClient client;
+        private UdpClient client;
 
         public ClientForm()
         {
@@ -33,7 +33,7 @@ namespace Client
 
         private void InitializeClient(string username, string serverIP)
         {
-            client = new RUdpClient();
+            client = new UdpClient();
             client.Connect(serverIP, 43594);
             client.SendPacket(new LoginPacket { Username = username });
         }

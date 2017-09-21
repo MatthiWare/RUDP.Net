@@ -1,4 +1,5 @@
 ﻿using MatthiWare.Net.Sockets;
+using MatthiWare.Net.Sockets.Base;
 using MatthiWare.Net.Sockets.Packets;
 using Packets;
 using System;
@@ -12,7 +13,7 @@ namespace Server
 {
     internal static class PacketHandlers
     {
-        public static void LoginPacketHandler(RUdpListener server, IPacket packet, IPEndPoint ep)
+        public static void LoginPacketHandler(RUdpServer server, IPacket packet, IClientInfo client)
         {
             Console.WriteLine($"Connection from {ep}");
 

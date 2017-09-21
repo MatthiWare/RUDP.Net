@@ -4,23 +4,33 @@ using MatthiWare.Net.Sockets.Base;
 
 namespace Packets
 {
-    public class LoginPacket : IPacket
+    public class LoginPacket : Packet
     {
         public const byte UniqueID = 0x00;
 
-        public byte Id => UniqueID;
+        public LoginPacket() : base(UniqueID, true) { }
 
+        public bool Authenticated { get; set; }
         public string Username { get; set; }
 
-        public void ReadPacket(ref RawPacket data)
+        public Guid ClientID { get; set; }
+
+        public override void ReadPacket(ref RawPacket data)
         {
+            base.ReadPacket(ref data);
+
+            Authenticated = data.ReadBool();
             Username = data.ReadString();
+            ClientID = data.ReadGuid();
         }
 
-        public void WritePacket(ref RawPacket data)
+        public override void WritePacket(ref RawPacket data)
         {
-            data.WriteByte(UniqueID);
-            data.WriteString(Username);
+            base.WritePacket(ref data);
+
+            data.Write(Authenticated);
+            data.Write(Username);
+            data.Write(ClientID);
         }
     }
 }

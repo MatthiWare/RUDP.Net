@@ -1,4 +1,4 @@
-﻿using MatthiWare.Net.Sockets;
+﻿using MatthiWare.Net.Sockets.Base;
 using MatthiWare.Net.Sockets.Packets;
 using Packets;
 using System;
@@ -14,12 +14,12 @@ using System.Windows.Forms;
 
 namespace Server
 {
-    public delegate void PacketHandler(RUdpListener server, IPacket packet, IPEndPoint ep);
+    public delegate void PacketHandler(UdpListener server, IPacket packet, IPEndPoint ep);
 
     public partial class ServerForm : Form
     {
         private bool running = false;
-        private RUdpListener server;
+        private UdpListener server;
 
 
         private PacketHandler[] handlers = new PacketHandler[byte.MaxValue];
@@ -29,7 +29,7 @@ namespace Server
         {
             InitializeComponent();
 
-            server = new RUdpListener(IPAddress.Any, 43594);
+            server = new UdpListener(IPAddress.Any, 43594);
         }
 
         private void ServerForm_Load(object sender, EventArgs e)
@@ -80,7 +80,15 @@ namespace Server
 
         private async Task Receive() => ProcessData(await server.ReceivePacketAsync());
 
-        private void ProcessData(Tuple<IPacket, IPEndPoint> data) => handlers[data.Item1.Id](server, data.Item1, data.Item2);
+        private void ProcessData(Tuple<IPacket, IPEndPoint> data)
+        {
+            var handler = handlers[data.Item1.Id];
+
+            if (handler == null)
+                throw new InvalidOperationException($"No packet handler set for 0x{data.Item1.Id.ToString("X2")} ({data.Item1.GetType().Name})");
+
+            handler(server, data.Item1, data.Item2);
+        }
 
     }
 }

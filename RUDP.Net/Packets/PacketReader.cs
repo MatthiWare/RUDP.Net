@@ -17,15 +17,15 @@ namespace MatthiWare.Net.Sockets.Packets
             PacketTypes.AddOrUpdate(id, packetType, (b, t) => packetType);
         }
 
-        public static IPacket PacketFromType(Type packetType)
+        public static Packet PacketFromType(Type packetType)
         {
-            if (!typeof(IPacket).IsAssignableFrom(packetType))
+            if (!typeof(Packet).IsAssignableFrom(packetType))
                 throw new InvalidCastException("Type must inherit from IPacket");
 
-            return (IPacket)Activator.CreateInstance(packetType);
+            return (Packet)Activator.CreateInstance(packetType);
         }
 
-        public static IPacket GetPacket(RawPacket data)
+        public static Packet GetPacket(RawPacket data)
         {
             byte id = data.ReadUInt8();
             Type type = PacketTypes[id];
@@ -33,7 +33,7 @@ namespace MatthiWare.Net.Sockets.Packets
             if (type == null)
                 throw new InvalidOperationException($"Invalid packet id: 0x{id.ToString("X2")}");
 
-            IPacket packet = PacketFromType(type);
+            Packet packet = PacketFromType(type);
             packet.ReadPacket(ref data);
 
             return packet;

@@ -8,26 +8,28 @@ using System.Threading.Tasks;
 
 namespace Packets
 {
-    public class ChatPacket : IPacket
+    public class ChatPacket : Packet
     {
         public const byte UniqueID = 0x01;
-
-        public byte Id => UniqueID;
-
-        public string Username { get; set; }
+        public Guid ClientID { get; set; }
         public string Message { get; set; }
 
-        public void ReadPacket(ref RawPacket data)
+        public ChatPacket() : base(UniqueID, true) { }
+
+        public override void ReadPacket(ref RawPacket data)
         {
-            Username = data.ReadString();
+            base.ReadPacket(ref data);
+
+             ClientID = data.ReadGuid();
             Message = data.ReadString();
         }
 
-        public void WritePacket(ref RawPacket data)
+        public override void WritePacket(ref RawPacket data)
         {
-            data.WriteByte(UniqueID);
-            data.WriteString(Username);
-            data.WriteString(Message);
+            base.WritePacket(ref data);
+
+            data.Write(ClientID);
+            data.Write(Message);
         }
     }
 }

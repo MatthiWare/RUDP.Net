@@ -120,15 +120,20 @@ namespace MatthiWare.Net.Sockets.Base
             m_client.Bind(localEP);
         }
 
-        public void Listen() => m_client.Listen((int)SocketOptionName.MaxConnections);
-
-
-        public int Send(byte[] buffer, int offset, int size)
+        public int Send(byte[] buffer)
         {
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
             if (!Active) throw new InvalidOperationException("Not connected");
 
-            return m_client.Send(buffer, offset, size, SocketFlags.None);
+            return m_client.Send(buffer, 0, buffer.Length, SocketFlags.None);
+        }
+
+        public int SendTo(byte[] buffer, EndPoint ep)
+        {
+            if (buffer == null) throw new ArgumentNullException(nameof(buffer));
+            if (!Active) throw new InvalidOperationException("Not connected");
+
+            return m_client.SendTo(buffer, 0, buffer.Length, SocketFlags.None, ep);
         }
 
         public byte[] Receive(ref IPEndPoint remoteEP)
@@ -147,6 +152,8 @@ namespace MatthiWare.Net.Sockets.Base
 
             return m_buffer;
         }
+
+        public void Close() => m_client.Close(5);
 
         public void Disconnect(bool reuse)
         {
@@ -180,11 +187,11 @@ namespace MatthiWare.Net.Sockets.Base
         }
 
         [HostProtection(ExternalThreading = true)]
-        public IAsyncResult BeginSend(byte[] buffer, int offset, int size, AsyncCallback callBack, object state)
+        public IAsyncResult BeginSend(byte[] buffer, AsyncCallback callBack, object state)
         {
             if (!Active) throw new InvalidOperationException("Not connected");
 
-            return m_client.BeginSend(buffer, offset, size, SocketFlags.None, callBack, state);
+            return m_client.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, callBack, state);
         }
 
         public int EndSend(IAsyncResult result)
@@ -193,33 +200,61 @@ namespace MatthiWare.Net.Sockets.Base
         }
 
         [HostProtection(ExternalThreading = true)]
-        public Task<int> SendAsync(byte[] buffer, int offset, int size)
+        public IAsyncResult BeginSendTo(byte[] buffer, EndPoint ep, AsyncCallback callBack, object state)
         {
-            return Task<int>.Factory.FromAsync(BeginSend, EndSend, buffer, offset, size, null);
+            if (!Active) throw new InvalidOperationException("Not connected");
+
+            return m_client.BeginSendTo(buffer, 0, buffer.Length, SocketFlags.None, ep, callBack, state);
         }
 
+        public int EndSendTo(IAsyncResult result)
+        {
+            return m_client.EndSendTo(result);
+        }
+
+        [HostProtection(ExternalThreading = true)]
+        public Task<int> SendAsync(byte[] buffer)
+        {
+            return Task<int>.Factory.FromAsync(BeginSend, EndSend, buffer, null);
+        }
+
+        [HostProtection(ExternalThreading = true)]
+        public Task<int> SendToAsync(byte[] buffer, EndPoint ep)
+        {
+            return Task<int>.Factory.FromAsync(BeginSendTo, EndSendTo, buffer, ep, null);
+        }
+
+        [HostProtection(ExternalThreading = true)]
         public Task<int> SendPacket(IPacket packet)
         {
             var raw = new RawPacket(256);
 
             packet.WritePacket(ref raw);
 
-            var sendBuffer = raw.ToBuffer();
-
-            return SendAsync(sendBuffer, 0, sendBuffer.Length);
+            return SendAsync(raw.ToBuffer());
         }
 
         [HostProtection(ExternalThreading = true)]
-        public Task<UdpReceiveResult> ReceiveAsync()
+        public Task<int> SendPacket(IPacket packet, EndPoint ep)
         {
-            return Task<UdpReceiveResult>.Factory.FromAsync((cb, state) => BeginReceive(cb, state), (ar) =>
-            {
-                IPEndPoint remoteEP = null;
-                byte[] buffer = EndReceive(ar, ref remoteEP);
-                return new UdpReceiveResult(buffer, remoteEP);
+            var raw = new RawPacket(256);
 
-            }, null);
+            packet.WritePacket(ref raw);
+
+            return SendToAsync(raw.ToBuffer(), ep);
         }
+
+        //[HostProtection(ExternalThreading = true)]
+        //public Task<UdpReceiveResult> ReceiveAsync()
+        //{
+        //    return Task<UdpReceiveResult>.Factory.FromAsync((cb, state) => BeginReceive(cb, state), (ar) =>
+        //    {
+        //        IPEndPoint remoteEP = null;
+        //        byte[] buffer = EndReceive(ar, ref remoteEP);
+        //        return new UdpReceiveResult(buffer, remoteEP);
+
+        //    }, null);
+        //}
 
         [HostProtection(ExternalThreading = true)]
         public Task<Tuple<IPacket, IPEndPoint>> ReceivePacketAsync()
