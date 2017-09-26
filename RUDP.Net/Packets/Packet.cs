@@ -4,15 +4,17 @@ using MatthiWare.Net.Sockets.Utils;
 
 namespace MatthiWare.Net.Sockets.Packets
 {
-    public abstract class Packet : IPacket
+    public abstract class Packet 
     {
-        public byte Id { get; }
+        public short Id { get; }
 
         public bool IsReliable { get; }
 
         public long Seq { get; set; }
 
-        public Packet(byte id, bool reliable)
+        internal DateTime ResendTime { get; set; }
+
+        public Packet(short id, bool reliable)
         {
             if (!Helper.IsValidPacketId(id)) throw new ArgumentException("Given id is not valid", nameof(id));
 

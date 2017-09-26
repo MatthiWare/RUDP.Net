@@ -109,7 +109,7 @@ namespace MatthiWare.Net.Sockets.Base
         public void Bind(int port)
         {
             if (!Helper.IsValidTcpPort(port)) throw new ArgumentOutOfRangeException(nameof(port));
-
+            
             Bind(Helper.GetEp(m_family, port));
         }
 
@@ -225,7 +225,7 @@ namespace MatthiWare.Net.Sockets.Base
         }
 
         [HostProtection(ExternalThreading = true)]
-        public Task<int> SendPacket(IPacket packet)
+        public Task<int> SendPacketAsync(IPacket packet)
         {
             var raw = new RawPacket(256);
 
@@ -235,7 +235,7 @@ namespace MatthiWare.Net.Sockets.Base
         }
 
         [HostProtection(ExternalThreading = true)]
-        public Task<int> SendPacket(IPacket packet, EndPoint ep)
+        public Task<int> SendPacketAsync(IPacket packet, EndPoint ep)
         {
             var raw = new RawPacket(256);
 

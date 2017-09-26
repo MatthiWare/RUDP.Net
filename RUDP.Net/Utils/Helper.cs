@@ -21,7 +21,7 @@ namespace MatthiWare.Net.Sockets.Utils
 
         public static EndPoint GetEp(AddressFamily family, int port) => new IPEndPoint(family == AddressFamily.InterNetwork ? IPAddress.Any : IPAddress.IPv6Any, port);
 
-        public static bool IsValidPacketId(byte id) => id > 0 && id < 253;
+        public static bool IsValidPacketId(short id) => id > 0 && id < 30000;
     }
 }
 

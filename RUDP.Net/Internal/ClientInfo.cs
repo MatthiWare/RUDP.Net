@@ -2,6 +2,7 @@
 using System.Net;
 using MatthiWare.Net.Sockets.Packets;
 using MatthiWare.Net.Sockets.Threading;
+using System.Collections.Generic;
 
 namespace MatthiWare.Net.Sockets.Internal
 {
@@ -11,7 +12,9 @@ namespace MatthiWare.Net.Sockets.Internal
 
         public EndPoint EndPoint { get; }
 
-        public ConcurrentQueue<IPacket> SendQueue { get; } = new ConcurrentQueue<IPacket>();
+        public ConcurrentQueue<Packet> SendQueue { get; } = new ConcurrentQueue<Packet>();
+
+        public List<Packet> ReliablePackets { get; } = new List<Packet>();
 
         public long Seq { get; set; }
 

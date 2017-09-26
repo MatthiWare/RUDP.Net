@@ -10,9 +10,9 @@ namespace MatthiWare.Net.Sockets.Packets
 {
     public static class PacketReader
     {
-        private static ConcurrentDictionary<byte, Type> PacketTypes = new ConcurrentDictionary<byte, Type>();
+        private static ConcurrentDictionary<short, Type> PacketTypes = new ConcurrentDictionary<short, Type>();
 
-        public static void RegisterPacket(byte id, Type packetType)
+        public static void RegisterPacket(short id, Type packetType)
         {
             PacketTypes.AddOrUpdate(id, packetType, (b, t) => packetType);
         }
@@ -27,7 +27,7 @@ namespace MatthiWare.Net.Sockets.Packets
 
         public static Packet GetPacket(RawPacket data)
         {
-            byte id = data.ReadUInt8();
+            short id = data.ReadInt16();
             Type type = PacketTypes[id];
 
             if (type == null)

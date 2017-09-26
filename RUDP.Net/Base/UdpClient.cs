@@ -2,7 +2,7 @@
  *  Copyright (C) 2017 Matthias Beerens
  *  For the full notice see <https://github.com/MatthiWare/RUDP.Net/blob/master/LICENSE>. 
  */
- 
+
 using MatthiWare.Net.Sockets.Packets;
 using System;
 using System.Collections.Generic;
@@ -31,9 +31,16 @@ namespace MatthiWare.Net.Sockets.Base
 
         public void Connect(IPAddress ip, int port) => m_socket.Connect(ip, port);
 
-        public void SendPacket(IPacket packet)
+        public Task<int> SendPacket(IPacket packet)
         {
-            m_socket.SendPacket(packet);
+            return m_socket.SendPacketAsync(packet);
         }
+
+        public Task<Tuple<IPacket, IPEndPoint>> ReceivePacketAsync()
+        {
+            return m_socket.ReceivePacketAsync();
+        }
+
+        public void Close() => m_socket.Close();
     }
 }

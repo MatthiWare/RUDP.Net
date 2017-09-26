@@ -62,7 +62,7 @@ namespace MatthiWare.Net.Sockets.Base
 
         public Task<int> SendPacketAsync(IPacket packet, EndPoint clientEP)
         {
-            return m_server.SendPacket(packet, clientEP);
+            return m_server.SendPacketAsync(packet, clientEP);
         }
 
     }

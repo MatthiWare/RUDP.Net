@@ -16,6 +16,8 @@ namespace Server
 
         protected override void RegisterPacketHandlers()
         {
+            base.RegisterPacketHandlers();
+
             RegisterPacketHandler(typeof(LoginPacket), PacketHandlers.LoginPacketHandler);
         }
     }

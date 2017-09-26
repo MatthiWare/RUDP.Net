@@ -12,18 +12,19 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using static MatthiWare.Net.Sockets.Internal.InternalPackets;
 
 namespace MatthiWare.Net.Sockets
 {
     public abstract class RUdpServer
     {
-        public delegate void HandlePacket(RUdpServer server, IPacket packet, IClientInfo client);
+        public delegate void HandlePacket(RUdpServer server, Packet packet, IClientInfo client);
 
         private UdpListener m_server;
         private readonly object m_networkSync = new object();
         private bool m_running = false;
 
-        private HandlePacket[] m_packetHandlers = new HandlePacket[byte.MaxValue];
+        private HandlePacket[] m_packetHandlers = new HandlePacket[short.MaxValue];
 
         public ConcurrentList<IClientInfo> Clients { get; } = new ConcurrentList<IClientInfo>();
 
@@ -50,7 +51,10 @@ namespace MatthiWare.Net.Sockets
 
         protected virtual void OnStop() => m_server.Stop();
 
-        protected abstract void RegisterPacketHandlers();
+        protected virtual void RegisterPacketHandlers()
+        {
+            RegisterPacketHandler(typeof(AckPacket), PacketHandlerInternal.HandleAckPacketServer);
+        }
 
         public void RegisterPacketHandler(Type packetType, HandlePacket handler)
         {
@@ -82,11 +86,48 @@ namespace MatthiWare.Net.Sockets
                 OnHandlePacket(data.Item1, client);
 
                 await Task.Delay(1);
+
+                ReaddLostPackets();
             }
         }
 
-        protected void OnHandlePacket(IPacket packet, IClientInfo client) => GetPacketHandler(packet.Id)(this, packet, client);
+        private void ReaddLostPackets()
+        {
+            var clientsCopy = Clients.ToArray();
 
+            foreach (var client in clientsCopy)
+            {
+                foreach (var p in client.ReliablePackets)
+                {
+                    var packet = p as Packet;
+
+                    if (packet == null)
+                        continue;
+
+                    var now = DateTime.Now;
+
+                    if (packet.ResendTime <= now)
+                        client.SendQueue.Enqueue(p);
+                }
+            }
+        }
+
+        protected void OnHandlePacket(Packet packet, IClientInfo client)
+        {
+            if (packet.IsReliable)
+                SendAck(packet, client);
+
+            GetPacketHandler(packet.Id)(this, packet, client);
+        }
+
+        private void SendAck(Packet packet, IClientInfo client)
+        {
+            client.SendQueue.Enqueue(new AckPacket
+            {
+                ClientID = client.ClientID,
+                Seq = packet.Seq
+            });
+        }
 
         private async void RunSender()
         {
@@ -97,10 +138,15 @@ namespace MatthiWare.Net.Sockets
                 foreach (var client in clientsCopy)
                 {
                     var sendTime = DateTime.Now.AddMilliseconds(100);
-                    IPacket packet = null;
+                    Packet packet = null;
 
                     while (client.SendQueue.TryDequeue(out packet) && DateTime.Now < sendTime)
-                        await m_server.SendPacketAsync(packet, client.EndPoint);
+                    {
+                        if (packet.IsReliable)
+
+                            await m_server.SendPacketAsync(packet, client.EndPoint);
+                    }
+
                 }
 
                 await Task.Delay(1);

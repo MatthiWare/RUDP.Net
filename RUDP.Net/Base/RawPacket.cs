@@ -89,11 +89,9 @@ namespace MatthiWare.Net.Sockets.Base
             return (byte)val;
         }
 
-        public void WriteUInt8(byte value) => Write(value);
-
         public sbyte ReadInt8() => (sbyte)ReadUInt8();
 
-        public void Write(sbyte value) => WriteUInt8((byte)value);
+        public void Write(sbyte value) => Write((byte)value);
 
         public ushort ReadUInt16()
         {

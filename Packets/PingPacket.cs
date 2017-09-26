@@ -10,7 +10,6 @@ namespace Packets
 {
     public class PingPacket : Packet
     {
-
         public const byte UniqueID = 0x02;
         public long SendTime { get; set; }
 
