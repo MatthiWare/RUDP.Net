@@ -14,7 +14,7 @@ namespace Packets
         public Guid ClientID { get; set; }
         public string Message { get; set; }
 
-        public ChatPacket() : base(UniqueID, true) { }
+        public ChatPacket() : base(0x01, true) { }
 
         public override void ReadPacket(ref RawPacket data)
         {

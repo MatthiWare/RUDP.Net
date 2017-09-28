@@ -20,6 +20,8 @@ namespace MatthiWare.Net.Sockets.Base
         public bool Active => m_socket.Active;
         public bool Available => m_socket.Available > 0;
 
+        public EndPoint LocalEndPoint => m_socket.LocalEndPoint;
+
         public UdpClient()
         {
             m_socket = new UdpSocket();
@@ -31,12 +33,12 @@ namespace MatthiWare.Net.Sockets.Base
 
         public void Connect(IPAddress ip, int port) => m_socket.Connect(ip, port);
 
-        public Task<int> SendPacket(IPacket packet)
+        public Task<int> SendPacket(Packet packet)
         {
             return m_socket.SendPacketAsync(packet);
         }
 
-        public Task<Tuple<IPacket, IPEndPoint>> ReceivePacketAsync()
+        public Task<Tuple<Packet, IPEndPoint>> ReceivePacketAsync()
         {
             return m_socket.ReceivePacketAsync();
         }

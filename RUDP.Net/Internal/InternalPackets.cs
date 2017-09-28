@@ -6,25 +6,21 @@ namespace MatthiWare.Net.Sockets.Internal
 {
     internal static class InternalPackets
     {
-        internal class AckPacket : Packet
+        #region 32766 ConPacket
+        public class ConPacket : Packet
         {
-            public AckPacket() : base(255, false) { }
+            public ConPacket() : base(32766, true) { }
+        }
+        #endregion
 
-            public Guid ClientID { get; set; }
-
-            public override void ReadPacket(ref RawPacket data)
+        #region 32767 AckPacket
+        public class AckPacket : Packet
+        {
+            public AckPacket(Packet packetToAck) : base(32767, false)
             {
-                base.ReadPacket(ref data);
-
-                ClientID = data.ReadGuid();
-            }
-
-            public override void WritePacket(ref RawPacket data)
-            {
-                base.WritePacket(ref data);
-
-                data.Write(ClientID);
+                Seq = packetToAck.Seq;
             }
         }
+        #endregion
     }
 }

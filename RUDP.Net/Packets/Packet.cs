@@ -10,7 +10,7 @@ namespace MatthiWare.Net.Sockets.Packets
 
         public bool IsReliable { get; }
 
-        public long Seq { get; set; }
+        internal long Seq { get; set; }
 
         internal DateTime ResendTime { get; set; }
 

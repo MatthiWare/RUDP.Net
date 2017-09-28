@@ -1,12 +1,8 @@
 ﻿using MatthiWare.Net.Sockets.Base;
 using MatthiWare.Net.Sockets.Internal;
 using MatthiWare.Net.Sockets.Packets;
-using MatthiWare.Net.Sockets.Threading;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using static MatthiWare.Net.Sockets.Internal.InternalPackets;
 
@@ -18,7 +14,9 @@ namespace MatthiWare.Net.Sockets
 
         private UdpClient m_client;
         private HandlePacket[] m_packetHandlers = new HandlePacket[short.MaxValue];
-        private IClientInfo m_self;
+
+        private ClientInfo m_clientInfo;
+        public ClientInfo Client => m_clientInfo;
 
         private string m_host;
         private int m_port;
@@ -30,8 +28,6 @@ namespace MatthiWare.Net.Sockets
 
             m_host = host;
             m_port = port;
-
-            m_self = new ClientInfo(Guid.NewGuid(), null);
         }
 
         public void Start() => OnStart();
@@ -39,6 +35,8 @@ namespace MatthiWare.Net.Sockets
         protected virtual void OnStart()
         {
             m_client.Connect(m_host, m_port);
+
+            m_clientInfo = new ClientInfo(m_client.LocalEndPoint);
 
             Task.Factory.StartNew(RunReceiver, TaskCreationOptions.LongRunning);
             Task.Factory.StartNew(RunSender, TaskCreationOptions.LongRunning);
@@ -50,6 +48,7 @@ namespace MatthiWare.Net.Sockets
         {
             m_running = false;
             m_client.Close();
+            m_clientInfo = null;
         }
 
         protected virtual void RegisterPacketHandlers()
@@ -71,30 +70,21 @@ namespace MatthiWare.Net.Sockets
         {
             if (packet.IsReliable)
             {
-                var cast = (Packet)packet;
-                cast.ResendTime = DateTime.Now.AddMilliseconds(50);
-                m_self.ReliablePackets.Add(packet);
+                packet.Seq = Client.GetNextSeqNumber();
+                packet.ResendTime = DateTime.Now.AddMilliseconds(50);
+                Client.ReliablePackets.Add(packet);
             }
 
-            m_self.SendQueue.Enqueue(packet);
+            Client.SendQueue.Enqueue(packet);
         }
 
         protected void OnHandlePacket(Packet packet)
         {
             if (packet.IsReliable)
-                SendAckPacket(packet);
-
-
+                SendAck(packet);
         }
 
-        private void SendAckPacket(Packet packet)
-        {
-            m_self.SendQueue.Enqueue(new AckPacket
-            {
-                Seq = packet.Seq,
-                ClientID = m_self.ClientID
-            });
-        }
+        private void SendAck(Packet packet) => Client.SendQueue.Enqueue(new AckPacket(packet));
 
         private async void RunReceiver()
         {

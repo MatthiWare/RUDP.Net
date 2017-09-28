@@ -265,7 +265,7 @@ namespace MatthiWare.Net.Sockets.Base
 
         public bool ReadBool() => ReadUInt8() != 0;
 
-        public void Write(bool value) => WriteUInt8(value ? (byte)1 : (byte)0);
+        public void Write(bool value) => Write(value ? (byte)1 : (byte)0);
 
         public string ReadString()
         {

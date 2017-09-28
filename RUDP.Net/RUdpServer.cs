@@ -18,7 +18,7 @@ namespace MatthiWare.Net.Sockets
 {
     public abstract class RUdpServer
     {
-        public delegate void HandlePacket(RUdpServer server, Packet packet, IClientInfo client);
+        public delegate void HandlePacket(RUdpServer server, Packet packet, ClientInfo client);
 
         private UdpListener m_server;
         private readonly object m_networkSync = new object();
@@ -26,7 +26,7 @@ namespace MatthiWare.Net.Sockets
 
         private HandlePacket[] m_packetHandlers = new HandlePacket[short.MaxValue];
 
-        public ConcurrentList<IClientInfo> Clients { get; } = new ConcurrentList<IClientInfo>();
+        public ConcurrentList<ClientInfo> Clients { get; } = new ConcurrentList<ClientInfo>();
 
         public RUdpServer(int port)
         {
@@ -66,7 +66,7 @@ namespace MatthiWare.Net.Sockets
             m_packetHandlers[packet.Id] = handler;
         }
 
-        private HandlePacket GetPacketHandler(byte id)
+        private HandlePacket GetPacketHandler(short id)
         {
             var handler = m_packetHandlers[id];
 
@@ -87,11 +87,11 @@ namespace MatthiWare.Net.Sockets
 
                 await Task.Delay(1);
 
-                ReaddLostPackets();
+                AddLostPacketsToQueue();
             }
         }
 
-        private void ReaddLostPackets()
+        private void AddLostPacketsToQueue()
         {
             var clientsCopy = Clients.ToArray();
 
@@ -107,12 +107,15 @@ namespace MatthiWare.Net.Sockets
                     var now = DateTime.Now;
 
                     if (packet.ResendTime <= now)
+                    {
                         client.SendQueue.Enqueue(p);
+                    }
+
                 }
             }
         }
 
-        protected void OnHandlePacket(Packet packet, IClientInfo client)
+        protected void OnHandlePacket(Packet packet, ClientInfo client)
         {
             if (packet.IsReliable)
                 SendAck(packet, client);
@@ -120,14 +123,7 @@ namespace MatthiWare.Net.Sockets
             GetPacketHandler(packet.Id)(this, packet, client);
         }
 
-        private void SendAck(Packet packet, IClientInfo client)
-        {
-            client.SendQueue.Enqueue(new AckPacket
-            {
-                ClientID = client.ClientID,
-                Seq = packet.Seq
-            });
-        }
+        private void SendAck(Packet packet, ClientInfo client) => client.SendQueue.Enqueue(new AckPacket(packet));
 
         private async void RunSender()
         {
@@ -137,14 +133,15 @@ namespace MatthiWare.Net.Sockets
 
                 foreach (var client in clientsCopy)
                 {
-                    var sendTime = DateTime.Now.AddMilliseconds(100);
+                    var maxSendTime = DateTime.Now.AddMilliseconds(100);
                     Packet packet = null;
 
-                    while (client.SendQueue.TryDequeue(out packet) && DateTime.Now < sendTime)
+                    while (client.SendQueue.TryDequeue(out packet) && DateTime.Now < maxSendTime)
                     {
                         if (packet.IsReliable)
+                            packet.Seq = client.GetNextSeqNumber();
 
-                            await m_server.SendPacketAsync(packet, client.EndPoint);
+                        await m_server.SendPacketAsync(packet, client.EndPoint);
                     }
 
                 }
@@ -153,10 +150,10 @@ namespace MatthiWare.Net.Sockets
             }
         }
 
-        protected IClientInfo OnMakeClientInfo(IPEndPoint ep) => new ClientInfo(Guid.NewGuid(), ep);
+        protected ClientInfo OnMakeClientInfo(IPEndPoint ep) => new ClientInfo(ep);
 
 
-        private IClientInfo GetOrAddClientInfo(IPEndPoint ep)
+        private ClientInfo GetOrAddClientInfo(IPEndPoint ep)
         {
             var client = Clients.Where(c => c.EndPoint == ep).FirstOrDefault();
 

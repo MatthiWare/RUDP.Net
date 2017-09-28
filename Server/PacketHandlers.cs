@@ -13,9 +13,9 @@ namespace Server
 {
     internal static class PacketHandlers
     {
-        public static void LoginPacketHandler(RUdpServer server, IPacket packet, IClientInfo client)
+        public static void LoginPacketHandler(RUdpServer server, Packet packet, IClientInfo client)
         {
-            Console.WriteLine($"Connection from {ep}");
+            Console.WriteLine($"Connection from {client.EndPoint}");
 
             var login = (LoginPacket)packet;
 

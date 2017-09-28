@@ -42,9 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base\RawPacket.cs" />
-    <Compile Include="IClientInfo.cs" />
     <Compile Include="Internal\InternalPackets.cs" />
-    <Compile Include="Internal\ClientInfo.cs" />
+    <Compile Include="ClientInfo.cs" />
     <Compile Include="Internal\PacketHandlerInternal.cs" />
     <Compile Include="Packets\Packet.cs" />
     <Compile Include="Packets\PacketReader.cs" />

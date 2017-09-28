@@ -23,6 +23,8 @@ namespace MatthiWare.Net.Sockets.Base
 
         public int Available => m_client.Available;
 
+        public EndPoint LocalEndPoint => m_client.LocalEndPoint;
+
         public bool Active { get; set; }
 
         public short Ttl
@@ -109,7 +111,7 @@ namespace MatthiWare.Net.Sockets.Base
         public void Bind(int port)
         {
             if (!Helper.IsValidTcpPort(port)) throw new ArgumentOutOfRangeException(nameof(port));
-            
+
             Bind(Helper.GetEp(m_family, port));
         }
 
@@ -225,7 +227,7 @@ namespace MatthiWare.Net.Sockets.Base
         }
 
         [HostProtection(ExternalThreading = true)]
-        public Task<int> SendPacketAsync(IPacket packet)
+        public Task<int> SendPacketAsync(Packet packet)
         {
             var raw = new RawPacket(256);
 
@@ -235,7 +237,7 @@ namespace MatthiWare.Net.Sockets.Base
         }
 
         [HostProtection(ExternalThreading = true)]
-        public Task<int> SendPacketAsync(IPacket packet, EndPoint ep)
+        public Task<int> SendPacketAsync(Packet packet, EndPoint ep)
         {
             var raw = new RawPacket(256);
 
@@ -257,7 +259,7 @@ namespace MatthiWare.Net.Sockets.Base
         //}
 
         [HostProtection(ExternalThreading = true)]
-        public Task<Tuple<IPacket, IPEndPoint>> ReceivePacketAsync()
+        public Task<Tuple<Packet, IPEndPoint>> ReceivePacketAsync()
         {
             return Task.Factory.FromAsync((cb, state) => BeginReceive(cb, state), (ar) =>
             {
@@ -266,7 +268,7 @@ namespace MatthiWare.Net.Sockets.Base
 
                 RawPacket raw = new RawPacket(buffer);
 
-                return new Tuple<IPacket, IPEndPoint>(PacketReader.GetPacket(raw), remoteEP);
+                return new Tuple<Packet, IPEndPoint>(PacketReader.GetPacket(raw), remoteEP);
 
             }, null);
         }

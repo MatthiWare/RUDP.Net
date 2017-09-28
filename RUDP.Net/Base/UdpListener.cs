@@ -55,12 +55,12 @@ namespace MatthiWare.Net.Sockets.Base
             m_server = new UdpSocket();
         }
 
-        public Task<Tuple<IPacket, IPEndPoint>> ReceivePacketAsync()
+        public Task<Tuple<Packet, IPEndPoint>> ReceivePacketAsync()
         {
             return m_server.ReceivePacketAsync();
         }
 
-        public Task<int> SendPacketAsync(IPacket packet, EndPoint clientEP)
+        public Task<int> SendPacketAsync(Packet packet, EndPoint clientEP)
         {
             return m_server.SendPacketAsync(packet, clientEP);
         }
