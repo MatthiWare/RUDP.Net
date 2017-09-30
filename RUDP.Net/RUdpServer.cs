@@ -41,7 +41,7 @@ namespace MatthiWare.Net.Sockets
         {
             m_server.Start();
 
-            m_running = false;
+            m_running = true;
 
             Task.Factory.StartNew(RunReceiver, TaskCreationOptions.LongRunning);
             Task.Factory.StartNew(RunSender, TaskCreationOptions.LongRunning);
@@ -49,11 +49,18 @@ namespace MatthiWare.Net.Sockets
 
         public void Stop() => OnStop();
 
-        protected virtual void OnStop() => m_server.Stop();
+        protected virtual void OnStop()
+        {
+            m_running = false;
+            m_server.Stop();
+
+            Clients.Clear();
+        }
 
         protected virtual void RegisterPacketHandlers()
         {
             RegisterPacketHandler(typeof(AckPacket), PacketHandlerInternal.HandleAckPacketServer);
+            RegisterPacketHandler(typeof(HandshakePacket), PacketHandlerInternal.HandleHandshakePacketServer);
         }
 
         public void RegisterPacketHandler(Type packetType, HandlePacket handler)
@@ -61,7 +68,9 @@ namespace MatthiWare.Net.Sockets
             var packet = PacketReader.PacketFromType(packetType);
 
             if (m_packetHandlers[packet.Id] != null)
-                Debug.WriteLine($"Handler for packet 0x{packet.Id.ToString("X2")} overwritten", "Warning");
+                Debug.WriteLine($"Handler for packet {packet.Id} overwritten", "Warning");
+
+            PacketReader.RegisterPacket(packet.Id, packetType);
 
             m_packetHandlers[packet.Id] = handler;
         }
@@ -71,13 +80,15 @@ namespace MatthiWare.Net.Sockets
             var handler = m_packetHandlers[id];
 
             if (handler == null)
-                throw new InvalidOperationException($"No handler registered for packet 0x{id.ToString("X2")}");
+                throw new InvalidOperationException($"No handler registered for packet id {id}");
 
             return handler;
         }
 
         private async void RunReceiver()
         {
+            Console.WriteLine("Starting receiver..");
+
             while (m_running)
             {
                 var data = await m_server.ReceivePacketAsync();
@@ -89,6 +100,8 @@ namespace MatthiWare.Net.Sockets
 
                 AddLostPacketsToQueue();
             }
+
+            Console.WriteLine("Exited receiver..");
         }
 
         private void AddLostPacketsToQueue()
@@ -97,20 +110,16 @@ namespace MatthiWare.Net.Sockets
 
             foreach (var client in clientsCopy)
             {
-                foreach (var p in client.ReliablePackets)
+                foreach (var packet in client.ReliablePackets)
                 {
-                    var packet = p as Packet;
-
-                    if (packet == null)
-                        continue;
-
                     var now = DateTime.Now;
 
                     if (packet.ResendTime <= now)
                     {
-                        client.SendQueue.Enqueue(p);
-                    }
+                        Console.WriteLine($"Resending packet {packet} to {client.EndPoint}");
 
+                        client.SendQueue.Enqueue(packet);
+                    }
                 }
             }
         }
@@ -120,6 +129,8 @@ namespace MatthiWare.Net.Sockets
             if (packet.IsReliable)
                 SendAck(packet, client);
 
+            Console.WriteLine($"Handling packet {packet} from {client.EndPoint}");
+
             GetPacketHandler(packet.Id)(this, packet, client);
         }
 
@@ -127,6 +138,8 @@ namespace MatthiWare.Net.Sockets
 
         private async void RunSender()
         {
+            Console.WriteLine("Starting sender..");
+
             while (m_running)
             {
                 var clientsCopy = Clients.ToArray();
@@ -138,8 +151,7 @@ namespace MatthiWare.Net.Sockets
 
                     while (client.SendQueue.TryDequeue(out packet) && DateTime.Now < maxSendTime)
                     {
-                        if (packet.IsReliable)
-                            packet.Seq = client.GetNextSeqNumber();
+                        Console.WriteLine($"Sending packet {packet} to {client.EndPoint}");
 
                         await m_server.SendPacketAsync(packet, client.EndPoint);
                     }
@@ -148,6 +160,8 @@ namespace MatthiWare.Net.Sockets
 
                 await Task.Delay(1);
             }
+
+            Console.WriteLine("Exited sender..");
         }
 
         protected ClientInfo OnMakeClientInfo(IPEndPoint ep) => new ClientInfo(ep);
@@ -155,18 +169,32 @@ namespace MatthiWare.Net.Sockets
 
         private ClientInfo GetOrAddClientInfo(IPEndPoint ep)
         {
-            var client = Clients.Where(c => c.EndPoint == ep).FirstOrDefault();
+            var client = Clients.Where(c => c.EndPoint.Equals(ep)).FirstOrDefault();
 
             if (client == null)
             {
                 client = OnMakeClientInfo(ep);
                 Clients.Add(client);
+
+                Console.WriteLine($"New client connected from {client.EndPoint}");
             }
 
             return client;
-
-
-
         }
+
+        public void SendPacket(Packet packet, ClientInfo client)
+        {
+            if (packet.IsReliable)
+            {
+                packet.Seq = client.GetNextSeqNumber();
+
+                client.ReliablePackets.Add(packet);
+            }
+
+            Console.WriteLine($"Add packet to queue {packet}");
+
+            client.SendQueue.Enqueue(packet);
+        }
+
     }
 }

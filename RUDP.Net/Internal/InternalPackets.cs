@@ -6,17 +6,25 @@ namespace MatthiWare.Net.Sockets.Internal
 {
     internal static class InternalPackets
     {
-        #region 32766 ConPacket
-        public class ConPacket : Packet
+        #region 32765 ConPacket
+        public class HandshakePacket : Packet
         {
-            public ConPacket() : base(32766, true) { }
+            public override short Id => 32765;
+
+            public override bool IsReliable => true;
         }
         #endregion
 
-        #region 32767 AckPacket
+        #region 32766 AckPacket
         public class AckPacket : Packet
         {
-            public AckPacket(Packet packetToAck) : base(32767, false)
+            public override short Id => 32766;
+
+            public override bool IsReliable => false;
+
+            public AckPacket() { }
+
+            public AckPacket(Packet packetToAck)
             {
                 Seq = packetToAck.Seq;
             }

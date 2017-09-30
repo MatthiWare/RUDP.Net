@@ -28,6 +28,8 @@ namespace MatthiWare.Net.Sockets
 
             m_host = host;
             m_port = port;
+
+            RegisterPacketHandlers();
         }
 
         public void Start() => OnStart();
@@ -38,8 +40,12 @@ namespace MatthiWare.Net.Sockets
 
             m_clientInfo = new ClientInfo(m_client.LocalEndPoint);
 
+            m_running = true;
+
             Task.Factory.StartNew(RunReceiver, TaskCreationOptions.LongRunning);
             Task.Factory.StartNew(RunSender, TaskCreationOptions.LongRunning);
+
+            SendPacket(new HandshakePacket());
         }
 
         public void Stop() => OnStop();
@@ -54,6 +60,7 @@ namespace MatthiWare.Net.Sockets
         protected virtual void RegisterPacketHandlers()
         {
             RegisterPacketHandler(typeof(AckPacket), PacketHandlerInternal.HandleAckPacketClient);
+            RegisterPacketHandler(typeof(HandshakePacket), PacketHandlerInternal.HandleHandshakePacketClient);
         }
 
         public void RegisterPacketHandler(Type packetType, HandlePacket handler)
@@ -63,10 +70,12 @@ namespace MatthiWare.Net.Sockets
             if (m_packetHandlers[packet.Id] != null)
                 Debug.WriteLine($"Handler for packet 0x{packet.Id.ToString("X2")} overwritten", "Warning");
 
+            PacketReader.RegisterPacket(packet.Id, packetType);
+
             m_packetHandlers[packet.Id] = handler;
         }
 
-        public void AddPacket(Packet packet)
+        public void SendPacket(Packet packet)
         {
             if (packet.IsReliable)
             {
@@ -75,6 +84,8 @@ namespace MatthiWare.Net.Sockets
                 Client.ReliablePackets.Add(packet);
             }
 
+            Console.WriteLine($"Add packet to queue {packet}");
+
             Client.SendQueue.Enqueue(packet);
         }
 
@@ -82,22 +93,49 @@ namespace MatthiWare.Net.Sockets
         {
             if (packet.IsReliable)
                 SendAck(packet);
+
+            Console.WriteLine($"Handling packet {packet}");
+
+            m_packetHandlers[packet.Id](this, packet);
         }
 
         private void SendAck(Packet packet) => Client.SendQueue.Enqueue(new AckPacket(packet));
 
         private async void RunReceiver()
         {
+            Console.WriteLine("Starting receiver..");
+
             while (m_running)
             {
                 var data = await m_client.ReceivePacketAsync();
 
+                OnHandlePacket(data.Item1);
+
+                await Task.Delay(1);
             }
+
+            Console.WriteLine("Exited receiver..");
         }
 
-        private void RunSender()
+        private async void RunSender()
         {
+            Console.WriteLine("Starting sender..");
 
+            while (m_running)
+            {
+                Packet packet = null;
+
+                while (Client.SendQueue.TryDequeue(out packet))
+                {
+                    Console.WriteLine($"Sending packet {packet}");
+
+                    await m_client.SendPacketAsync(packet);
+                }
+
+                await Task.Delay(1);
+            }
+
+            Console.WriteLine("Exited sender..");
         }
     }
 }

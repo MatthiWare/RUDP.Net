@@ -120,6 +120,8 @@ namespace MatthiWare.Net.Sockets.Base
             if (localEP == null) throw new ArgumentNullException(nameof(localEP));
 
             m_client.Bind(localEP);
+
+            Active = true;
         }
 
         public int Send(byte[] buffer)

@@ -13,7 +13,7 @@ namespace Server
 {
     internal static class PacketHandlers
     {
-        public static void LoginPacketHandler(RUdpServer server, Packet packet, IClientInfo client)
+        public static void LoginPacketHandler(RUdpServer server, Packet packet, ClientInfo client)
         {
             Console.WriteLine($"Connection from {client.EndPoint}");
 

@@ -10,11 +10,12 @@ namespace Packets
 {
     public class ChatPacket : Packet
     {
-        public const byte UniqueID = 0x01;
+        public override short Id => 1;
+
+        public override bool IsReliable => true;
+
         public Guid ClientID { get; set; }
         public string Message { get; set; }
-
-        public ChatPacket() : base(0x01, true) { }
 
         public override void ReadPacket(ref RawPacket data)
         {

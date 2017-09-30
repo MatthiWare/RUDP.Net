@@ -12,7 +12,9 @@ namespace MatthiWare.Net.Sockets
 
         internal ConcurrentQueue<Packet> SendQueue { get; } = new ConcurrentQueue<Packet>();
 
-        internal List<Packet> ReliablePackets { get; } = new List<Packet>();
+        internal ConcurrentList<Packet> ReliablePackets { get; } = new ConcurrentList<Packet>();
+
+        public bool IsActive { get; internal set; }
 
         private long m_seq;
 

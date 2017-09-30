@@ -55,6 +55,7 @@
     <Compile Include="RUdpServer.cs" />
     <Compile Include="Threading\ConcurrentList.cs" />
     <Compile Include="Threading\ConcurrentQueue.cs" />
+    <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Utils\Helper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

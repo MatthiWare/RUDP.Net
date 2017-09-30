@@ -33,7 +33,7 @@ namespace MatthiWare.Net.Sockets.Base
 
         public void Connect(IPAddress ip, int port) => m_socket.Connect(ip, port);
 
-        public Task<int> SendPacket(Packet packet)
+        public Task<int> SendPacketAsync(Packet packet)
         {
             return m_socket.SendPacketAsync(packet);
         }

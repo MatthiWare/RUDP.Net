@@ -6,9 +6,9 @@ namespace Packets
 {
     public class LoginPacket : Packet
     {
-        public const byte UniqueID = 0x00;
+        public override short Id => 0;
 
-        public LoginPacket() : base(UniqueID, true) { }
+        public override bool IsReliable => true;
 
         public bool Authenticated { get; set; }
         public string Username { get; set; }

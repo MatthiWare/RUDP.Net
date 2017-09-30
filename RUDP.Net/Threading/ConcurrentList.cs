@@ -61,7 +61,8 @@ namespace MatthiWare.Net.Sockets.Threading
 
         public IEnumerator<T> GetEnumerator()
         {
-            return m_list.GetEnumerator();
+            lock (sync)
+                return m_list.GetEnumerator();
         }
 
         public int IndexOf(T item)
@@ -86,7 +87,8 @@ namespace MatthiWare.Net.Sockets.Threading
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return m_list.GetEnumerator();
+            lock (sync)
+                return m_list.GetEnumerator();
         }
     }
 }

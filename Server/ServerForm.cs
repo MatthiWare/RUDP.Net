@@ -17,50 +17,55 @@ namespace Server
 {
     public partial class ServerForm : Form
     {
+        private TestServer server;
+
         public ServerForm()
         {
             InitializeComponent();
-            
+
         }
 
         private void ServerForm_Load(object sender, EventArgs e)
         {
+            server = new TestServer(43594);
         }
 
-        
+
 
         private void btnStartStop_Click(object sender, EventArgs e)
         {
-            var txtstartstop = !running ? "Starting" : "Stopping";
-            Log($"{txtstartstop} server..");
+            server.Start();
 
-            StartStopServer();
+            //var txtstartstop = !running ? "Starting" : "Stopping";
+            //Log($"{txtstartstop} server..");
 
-            txtstartstop = running ? "started" : "stopped";
-            Log($"Server {txtstartstop}..");
+            //StartStopServer();
+
+            //txtstartstop = running ? "started" : "stopped";
+            //Log($"Server {txtstartstop}..");
         }
 
         private void Log(string msg) => txtLog.Text += $"{msg}\r\n";
 
         private async Task StartStopServer()
         {
-            if (!running)
-                server.Start();
-            else
-                server.Stop();
+            //if (!running)
+            //    server.Start();
+            //else
+            //    server.Stop();
 
-            running = !running;
+            //running = !running;
 
-            UpdateServerStatus();
+            //UpdateServerStatus();
 
-            if (running)
-                await Receive();
+            //if (running)
+            //    await Receive();
         }
 
         private void UpdateServerStatus()
         {
-            txtServerStatus.Text = running ? "Online" : "Offline";
-            txtServerStatus.ForeColor = running ? Color.DarkGreen : Color.DarkRed;
+            //txtServerStatus.Text = running ? "Online" : "Offline";
+            //txtServerStatus.ForeColor = running ? Color.DarkGreen : Color.DarkRed;
         }
 
     }
