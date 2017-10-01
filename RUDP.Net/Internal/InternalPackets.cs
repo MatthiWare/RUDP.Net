@@ -9,6 +9,11 @@ namespace MatthiWare.Net.Sockets.Internal
         #region 32765 ConPacket
         public class HandshakePacket : Packet
         {
+            static HandshakePacket()
+            {
+                PacketReader.RegisterPacket(32765, typeof(AckPacket));
+            }
+
             public override short Id => 32765;
 
             public override bool IsReliable => true;
@@ -18,6 +23,11 @@ namespace MatthiWare.Net.Sockets.Internal
         #region 32766 AckPacket
         public class AckPacket : Packet
         {
+            static AckPacket()
+            {
+                PacketReader.RegisterPacket(32766, typeof(AckPacket));
+            }
+
             public override short Id => 32766;
 
             public override bool IsReliable => false;

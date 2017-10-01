@@ -34,9 +34,33 @@ namespace Client
 
         private void InitializeClient(string username, string serverIP)
         {
-            client = new TestClient(serverIP, 43594);
+            client = new TestClient(serverIP, 43594, this);
             client.Start();
             client.SendPacket(new LoginPacket { Username = username });
+        }
+
+        private void txtMsg_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter)
+                btnSend.PerformClick();
+        }
+
+        private void btnSend_Click(object sender, EventArgs e)
+        {
+            SuspendLayout();
+            var text = txtMsg.Text;
+
+            client.SendPacket(new ChatPacket { Message = text });
+
+            AddText(text);
+            txtMsg.Clear();
+
+            ResumeLayout();
+        }
+
+        public void AddText(string msg)
+        {
+            txtChat.Text += $"{msg}\r\n";
         }
     }
 }

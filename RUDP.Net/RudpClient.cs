@@ -80,7 +80,7 @@ namespace MatthiWare.Net.Sockets
             if (packet.IsReliable)
             {
                 packet.Seq = Client.GetNextSeqNumber();
-                packet.ResendTime = DateTime.Now.AddMilliseconds(50);
+                packet.ResendTime = DateTime.Now.AddMilliseconds(200);
                 Client.ReliablePackets.Add(packet);
             }
 
@@ -112,6 +112,8 @@ namespace MatthiWare.Net.Sockets
                 OnHandlePacket(data.Item1);
 
                 await Task.Delay(1);
+
+                AddLostPacketsToQueue();
             }
 
             Console.WriteLine("Exited receiver..");
@@ -136,6 +138,22 @@ namespace MatthiWare.Net.Sockets
             }
 
             Console.WriteLine("Exited sender..");
+        }
+
+        private void AddLostPacketsToQueue()
+        {
+            foreach (var packet in Client.ReliablePackets)
+            {
+                var now = DateTime.Now;
+
+                if (packet.ResendTime <= now)
+                {
+                    Console.WriteLine($"Resending packet {packet}");
+
+                    Client.SendQueue.Enqueue(packet);
+                }
+            }
+
         }
     }
 }

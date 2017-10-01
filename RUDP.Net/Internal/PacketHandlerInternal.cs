@@ -27,7 +27,7 @@ namespace MatthiWare.Net.Sockets.Internal
 
             server.SendPacket(new HandshakePacket(), client);
 
-            Console.WriteLine($"Received connection from '{client.EndPoint}'!");
+            //Console.WriteLine($"Received connection from '{client.EndPoint}'!");
         }
 
         public static void HandleHandshakePacketClient(RUdpClient client, Packet packet)

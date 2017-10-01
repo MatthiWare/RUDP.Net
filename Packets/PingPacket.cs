@@ -10,6 +10,11 @@ namespace Packets
 {
     public class PingPacket : Packet
     {
+        static PingPacket()
+        {
+            PacketReader.RegisterPacket(2, typeof(PingPacket));
+        }
+
         public override short Id => 2;
 
         public override bool IsReliable => true;

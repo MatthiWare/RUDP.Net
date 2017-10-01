@@ -6,6 +6,11 @@ namespace Packets
 {
     public class LoginPacket : Packet
     {
+        static LoginPacket()
+        {
+            PacketReader.RegisterPacket(0, typeof(LoginPacket));
+        }
+
         public override short Id => 0;
 
         public override bool IsReliable => true;

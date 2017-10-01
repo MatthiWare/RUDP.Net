@@ -10,6 +10,11 @@ namespace Packets
 {
     public class ChatPacket : Packet
     {
+        static ChatPacket()
+        {
+            PacketReader.RegisterPacket(1, typeof(ChatPacket));
+        }
+
         public override short Id => 1;
 
         public override bool IsReliable => true;
@@ -21,7 +26,7 @@ namespace Packets
         {
             base.ReadPacket(ref data);
 
-             ClientID = data.ReadGuid();
+            ClientID = data.ReadGuid();
             Message = data.ReadString();
         }
 

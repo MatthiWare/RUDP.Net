@@ -187,7 +187,7 @@ namespace MatthiWare.Net.Sockets
             if (packet.IsReliable)
             {
                 packet.Seq = client.GetNextSeqNumber();
-
+                packet.ResendTime = DateTime.Now.AddMilliseconds(200);
                 client.ReliablePackets.Add(packet);
             }
 

@@ -15,11 +15,15 @@ namespace Server
     {
         public static void LoginPacketHandler(RUdpServer server, Packet packet, ClientInfo client)
         {
-            Console.WriteLine($"Connection from {client.EndPoint}");
+            // Console.WriteLine($"Connection from {client.EndPoint}");
 
             var login = (LoginPacket)packet;
 
             Console.WriteLine($"Logged in: {login.Username}");
+
+            foreach (ClientInfo c in server.Clients)
+                if (!c.EndPoint.Equals(client.EndPoint))
+                    server.SendPacket(packet, c);
         }
     }
 }
