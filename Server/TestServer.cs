@@ -19,6 +19,7 @@ namespace Server
             base.RegisterPacketHandlers();
 
             RegisterPacketHandler(typeof(LoginPacket), PacketHandlers.LoginPacketHandler);
+            RegisterPacketHandler(typeof(ChatPacket), PacketHandlers.ChatPacketHandler);
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Packets
         {
             base.ReadPacket(ref data);
 
-            ClientID = data.ReadGuid();
+           // ClientID = data.ReadGuid();
             Message = data.ReadString();
         }
 
@@ -34,7 +34,7 @@ namespace Packets
         {
             base.WritePacket(ref data);
 
-            data.Write(ClientID);
+            // data.Write(ClientID);
             data.Write(Message);
         }
     }

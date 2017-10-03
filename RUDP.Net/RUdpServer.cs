@@ -70,7 +70,7 @@ namespace MatthiWare.Net.Sockets
             if (m_packetHandlers[packet.Id] != null)
                 Debug.WriteLine($"Handler for packet {packet.Id} overwritten", "Warning");
 
-            PacketReader.RegisterPacket(packet.Id, packetType);
+            //PacketReader.RegisterPacket(packet.Id, packetType);
 
             m_packetHandlers[packet.Id] = handler;
         }
@@ -116,6 +116,8 @@ namespace MatthiWare.Net.Sockets
 
                     if (packet.ResendTime <= now)
                     {
+                        packet.ResendTime = DateTime.Now.AddMilliseconds(500);
+
                         Console.WriteLine($"Resending packet {packet} to {client.EndPoint}");
 
                         client.SendQueue.Enqueue(packet);

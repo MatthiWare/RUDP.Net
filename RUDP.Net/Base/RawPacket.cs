@@ -269,14 +269,14 @@ namespace MatthiWare.Net.Sockets.Base
 
         public string ReadString()
         {
-            ushort length = ReadUInt16();
+            short length = ReadInt16();
             var data = ReadUInt8Array(length);
             return Encoding.UTF8.GetString(data);
         }
 
         public void Write(string value)
         {
-            Write((ushort)value.Length);
+            Write((short)value.Length);
             Write(Encoding.UTF8.GetBytes(value));
         }
 

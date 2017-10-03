@@ -28,10 +28,10 @@ namespace MatthiWare.Net.Sockets.Packets
         public static Packet GetPacket(RawPacket data)
         {
             short id = data.ReadInt16();
-            Type type = PacketTypes[id];
+            Type type = null; 
 
-            if (type == null)
-                throw new InvalidOperationException($"Invalid packet id: 0x{id.ToString("X2")}");
+            if (!PacketTypes.TryGetValue(id, out type))
+                throw new InvalidOperationException($"Invalid packet id {id}");
 
             Packet packet = PacketFromType(type);
             packet.ReadPacket(ref data);

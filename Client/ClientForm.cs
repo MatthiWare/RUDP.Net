@@ -48,11 +48,10 @@ namespace Client
         private void btnSend_Click(object sender, EventArgs e)
         {
             SuspendLayout();
-            var text = txtMsg.Text;
 
-            client.SendPacket(new ChatPacket { Message = text });
+            client.SendPacket(new ChatPacket { Message = txtMsg.Text });
 
-            AddText(text);
+            //AddText(text);
             txtMsg.Clear();
 
             ResumeLayout();
@@ -60,7 +59,13 @@ namespace Client
 
         public void AddText(string msg)
         {
-            txtChat.Text += $"{msg}\r\n";
+            if (txtChat.InvokeRequired)
+            {
+                txtChat.Invoke(new Action<string>(AddText), msg);
+                return;
+            }
+
+            txtChat.Text += $"{msg}\n";
         }
     }
 }
