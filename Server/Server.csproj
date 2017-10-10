@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{AD0AE234-BD6A-4DCC-BEE0-C58A017B5548}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{70B09CD6-95CE-4DB9-97B7-38E71D22A7F1}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MatthiWare.Net.Sockets</RootNamespace>
-    <AssemblyName>RUDP.Net</AssemblyName>
+    <RootNamespace>Server</RootNamespace>
+    <AssemblyName>Server</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -20,7 +20,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,9 +29,14 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Server.Program</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,22 +45,34 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Base\RawPacket.cs" />
-    <Compile Include="Internal\InternalPackets.cs" />
-    <Compile Include="ClientInfo.cs" />
-    <Compile Include="Internal\PacketHandlerInternal.cs" />
-    <Compile Include="Packets\Packet.cs" />
-    <Compile Include="Packets\PacketReader.cs" />
+    <Compile Include="PacketHandlers.cs" />
+    <Compile Include="ServerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ServerForm.Designer.cs">
+      <DependentUpon>ServerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Base\UdpSocket.cs" />
-    <Compile Include="Base\UdpClient.cs" />
-    <Compile Include="Base\UdpListener.cs" />
-    <Compile Include="RUdpClient.cs" />
-    <Compile Include="RUdpServer.cs" />
-    <Compile Include="Threading\ConcurrentList.cs" />
-    <Compile Include="Threading\ConcurrentQueue.cs" />
-    <Compile Include="Utils\Extensions.cs" />
-    <Compile Include="Utils\Helper.cs" />
+    <Compile Include="TestServer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ServerForm.resx">
+      <DependentUpon>ServerForm.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Packets\Packets.csproj">
+      <Project>{66EEC9B1-646F-44C9-8FEF-F7EABED2885D}</Project>
+      <Name>Packets</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RUDP.Net\RUDP.Net.csproj">
+      <Project>{AD0AE234-BD6A-4DCC-BEE0-C58A017B5548}</Project>
+      <Name>RUDP.Net</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
