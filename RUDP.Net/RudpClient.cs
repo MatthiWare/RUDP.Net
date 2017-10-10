@@ -113,7 +113,7 @@ namespace MatthiWare.Net.Sockets
 
                 await Task.Delay(1);
 
-                AddLostPacketsToQueue();
+                //AddLostPacketsToQueue();
             }
 
             Console.WriteLine("Exited receiver..");

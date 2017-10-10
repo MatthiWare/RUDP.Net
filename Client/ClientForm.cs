@@ -65,7 +65,7 @@ namespace Client
                 return;
             }
 
-            txtChat.Text += $"{msg}\n";
+            txtChat.Text += $"{msg}{Environment.NewLine}";
         }
     }
 }
